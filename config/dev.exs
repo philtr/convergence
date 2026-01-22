@@ -17,6 +17,8 @@ config :convergence, ConvergenceWeb.Endpoint,
   secret_key_base: "KTRGaZqF0RWJXyrQMnCPrg6nsVKsYJJEwtBdbNLIG5jW1oqnQRbX9TmEc4Q5qftC",
   watchers: []
 
+config :convergence, cors_origins: ["http://localhost:8000"]
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

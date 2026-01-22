@@ -10,7 +10,8 @@ import Config
 config :convergence,
   ecto_repos: [],
   generators: [timestamp_type: :utc_datetime],
-  max_state_bytes: 32_768
+  max_state_bytes: 32_768,
+  cors_origins: []
 
 # Configure the endpoint
 config :convergence, ConvergenceWeb.Endpoint,

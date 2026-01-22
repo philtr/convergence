@@ -15,6 +15,10 @@ defmodule ConvergenceWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  socket "/socket", ConvergenceWeb.SyncSocket,
+    websocket: true,
+    longpoll: false
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -39,6 +43,7 @@ defmodule ConvergenceWeb.Endpoint do
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+  plug ConvergenceWeb.CORS
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

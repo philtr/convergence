@@ -9,7 +9,6 @@ defmodule ConvergenceWeb.Router do
     pipe_through :api
 
     get "/rooms/:room_id", RoomController, :show
-    get "/rooms/:room_id/stream", RoomStreamController, :stream
     put "/rooms/:room_id", RoomController, :upsert
   end
 

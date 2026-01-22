@@ -96,46 +96,64 @@ Constraints:
 - Reject if payload > 32KB (413) to prevent abuse.
 - Reject if state is not valid JSON object/array (422).
 
-#### 3) Subscribe to updates (SSE)
+#### 3) Subscribe to updates (WebSocket)
 
-GET /api/rooms/:room_id/stream
+Connect to the Phoenix socket and join a room channel:
 
-Headers:
+- WebSocket endpoint: ws://<host>/socket (Phoenix protocol with vsn)
+- Topic: room:<room_id>
 
-- Content-Type: text/event-stream
-- Cache-Control: no-cache
-- Connection: keep-alive
+Join:
 
-Event format:
-
-- event: state
-- data: <json-room-record>
-
-Example stream chunk:
-
+```json
+{
+  "topic": "room:abc123",
+  "event": "phx_join",
+  "payload": {},
+  "ref": "1"
+}
 ```
-event: state
-data: {"room_id":"abc123","version":8,"updated_at":"...","state":{...}}
 
+Server pushes:
+
+```json
+{
+  "topic": "room:abc123",
+  "event": "state",
+  "payload": {
+    "room_id": "abc123",
+    "version": 8,
+    "updated_at": "2026-01-21T20:00:00Z",
+    "state": { ... }
+  }
+}
+```
+
+Client updates:
+
+```json
+{
+  "topic": "room:abc123",
+  "event": "state:update",
+  "payload": { "state": { ... } },
+  "ref": "2"
+}
 ```
 
 Notes:
 
-- On connect, server should immediately emit the current room record if it exists.
-- If room doesn’t exist, emit event: state with version:0 and state:null OR emit event: error with room_not_found (recommended: version:0/state:null to simplify clients).
-- Heartbeat: send a comment line every 15s:
-  : heartbeat\n\n
-  to keep proxies from closing the connection.
+- On join, server should immediately push the current room record.
+- If room doesn’t exist, push state with version:0 and state:null to simplify clients.
 
 ---
 
 ## Client flow (recommended)
 
-1. GET /api/rooms/:room_id (optional; can rely on SSE initial message)
-2. Open SSE: EventSource(/api/rooms/:room_id/stream)
+1. GET /api/rooms/:room_id (optional; can rely on WebSocket initial state)
+2. Open WebSocket and join room:<room_id>
 3. When user makes a change:
-   - PUT /api/rooms/:room_id with full state
-4. All clients receive broadcasts from SSE and replace their local state with received state.
+   - push state:update with full state
+4. All clients receive broadcasts on state and replace their local state with received state.
 
 Last write wins means clients always treat server updates as authoritative.
 
@@ -154,8 +172,9 @@ Proposed modules:
 - Sync.RoomRegistry (GenServer)
 - Sync.RoomSupervisor (DynamicSupervisor, optional; can be single GenServer)
 - SyncWeb.RoomController
-- SyncWeb.RoomStreamController (SSE)
-- SyncWeb.Endpoint (CORS)
+- ConvergenceWeb.RoomChannel
+- ConvergenceWeb.SyncSocket
+- ConvergenceWeb.Endpoint (CORS)
 
 ### In-memory state & broadcast
 
@@ -179,17 +198,7 @@ API:
 Broadcast mechanism:
 
 - When put_room succeeds, GenServer sends {:room_update, room_record} to all subscriber PIDs for that room.
-- Each SSE connection process (controller process) receives messages and writes to the socket.
-
-### SSE controller behavior
-
-- Set response headers for streaming.
-- Call subscribe(room_id, self()).
-- Immediately send current state (or {version:0,state:null}).
-- Enter receive loop:
-  - on {:room_update, room} -> write SSE event
-  - every 15s -> write heartbeat comment
-  - on client disconnect -> ensure unsubscribe in terminate/2 or after block
+- Each channel process receives messages and pushes a "state" event over the socket.
 
 ### Room TTL (optional but recommended)
 
@@ -208,7 +217,7 @@ Add cleanup to avoid unbounded memory:
 - CORS_ORIGINS (comma-separated; e.g. https://your-site.netlify.app,http://localhost:5173)
 - MAX_STATE_BYTES (default 32768)
 - ROOM_TTL_SECONDS (default 86400)
-- HEARTBEAT_SECONDS (default 15)
+- (no heartbeat setting for WebSocket)
 
 ---
 
@@ -288,8 +297,8 @@ Example fields:
   - PUT creates room with version 1
   - PUT overwrites and increments version
   - payload size limit enforced
-- SSE integration test:
-  - open stream, PUT update, assert stream receives event
+- WebSocket channel test:
+  - join room channel, push update, assert state broadcast
 
 ---
 
