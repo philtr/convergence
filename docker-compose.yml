@@ -6,6 +6,7 @@ services:
     environment:
       PORT: "4000"
       CORS_ORIGINS: "http://localhost:5173"
+      CHECK_ORIGINS: "https://example.com,https://sync.example.com"
       ROOM_TTL_SECONDS: "86400"
       MAX_STATE_BYTES: "32768"
       SECRET_KEY_BASE: "replace_me_with_mix_phx_gen_secret"

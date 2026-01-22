@@ -44,6 +44,16 @@ if config_env() == :prod do
 
   config :convergence, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  check_origin =
+    System.get_env("CHECK_ORIGINS") ||
+      raise """
+      environment variable CHECK_ORIGINS is missing.
+      Provide a comma-separated list of allowed origins, for example:
+      https://example.com,https://sync.example.com
+      """
+
+  check_origin = check_origin |> String.split(",", trim: true)
+
   config :convergence, ConvergenceWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
@@ -53,6 +63,7 @@ if config_env() == :prod do
       # for details about using IPv6 vs IPv4 and loopback vs public addresses.
       ip: {0, 0, 0, 0, 0, 0, 0, 0}
     ],
+    check_origin: check_origin,
     secret_key_base: secret_key_base
 
   # ## SSL Support
