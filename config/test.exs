@@ -1,24 +1,13 @@
 import Config
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
-config :convergence, Convergence.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "convergence_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
-
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :convergence, ConvergenceWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "YVVGI2p+arue2Dsm9iGbBjLMfeSaJ1LVsd3iSOaoLz03CQqTP0T4kRyu9H2KsJjj",
   server: false
+
+config :convergence, heartbeat_ms: 10
 
 # In test we don't send emails
 config :convergence, Convergence.Mailer, adapter: Swoosh.Adapters.Test

@@ -6,38 +6,20 @@ defmodule Convergence.DataCase do
   You may define functions here to be used as helpers in
   your tests.
 
-  Finally, if the test case interacts with the database,
-  we enable the SQL sandbox, so changes done to the database
-  are reverted at the end of every test. If you are using
-  PostgreSQL, you can even run database tests asynchronously
-  by setting `use Convergence.DataCase, async: true`, although
-  this option is not recommended for other databases.
+  This project keeps state in memory, so no database setup is required.
   """
 
   use ExUnit.CaseTemplate
 
   using do
     quote do
-      alias Convergence.Repo
-
-      import Ecto
       import Ecto.Changeset
-      import Ecto.Query
       import Convergence.DataCase
     end
   end
 
-  setup tags do
-    Convergence.DataCase.setup_sandbox(tags)
+  setup _tags do
     :ok
-  end
-
-  @doc """
-  Sets up the sandbox based on the test tags.
-  """
-  def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Convergence.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 
   @doc """

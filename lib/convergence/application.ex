@@ -9,7 +9,7 @@ defmodule Convergence.Application do
   def start(_type, _args) do
     children = [
       ConvergenceWeb.Telemetry,
-      Convergence.Repo,
+      Convergence.RoomRegistry,
       {DNSCluster, query: Application.get_env(:convergence, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Convergence.PubSub},
       # Start a worker by calling: Convergence.Worker.start_link(arg)

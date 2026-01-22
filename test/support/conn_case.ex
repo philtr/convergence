@@ -7,12 +7,8 @@ defmodule ConvergenceWeb.ConnCase do
   import other functionality to make it easier
   to build common data structures and query the data layer.
 
-  Finally, if the test case interacts with the database,
-  we enable the SQL sandbox, so changes done to the database
-  are reverted at the end of every test. If you are using
-  PostgreSQL, you can even run database tests asynchronously
-  by setting `use ConvergenceWeb.ConnCase, async: true`, although
-  this option is not recommended for other databases.
+  If the test case interacts with external resources, keep
+  the setup localized to the test module.
   """
 
   use ExUnit.CaseTemplate
@@ -31,8 +27,7 @@ defmodule ConvergenceWeb.ConnCase do
     end
   end
 
-  setup tags do
-    Convergence.DataCase.setup_sandbox(tags)
+  setup _tags do
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

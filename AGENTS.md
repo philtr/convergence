@@ -4,6 +4,8 @@ This is a web application written using the Phoenix web framework.
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
+- Follow strict TDD: write failing tests first, then implement, then refactor.
+- Keep the test suite as fast as possible without reducing coverage or confidence.
 
 ### Phoenix v1.8 guidelines
 
