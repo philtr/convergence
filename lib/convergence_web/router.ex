@@ -5,6 +5,12 @@ defmodule ConvergenceWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/", ConvergenceWeb do
+    pipe_through :api
+
+    get "/healthz", HealthController, :show
+  end
+
   scope "/api", ConvergenceWeb do
     pipe_through :api
 

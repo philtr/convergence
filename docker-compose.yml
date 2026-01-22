@@ -1,0 +1,12 @@
+services:
+  sync:
+    image: ghcr.io/philtr/convergence:latest
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: "4000"
+      CORS_ORIGINS: "http://localhost:5173"
+      ROOM_TTL_SECONDS: "86400"
+      MAX_STATE_BYTES: "32768"
+      SECRET_KEY_BASE: "replace_me_with_mix_phx_gen_secret"
+    restart: unless-stopped
