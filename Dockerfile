@@ -20,7 +20,7 @@ COPY priv priv
 RUN mix compile
 RUN mix release
 
-FROM debian:bookworm-slim AS app
+FROM debian:trixie-slim AS app
 
 RUN apt-get update && apt-get install -y libstdc++6 libncurses6 openssl ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
